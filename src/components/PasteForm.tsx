@@ -49,7 +49,7 @@ export default function PasteForm() {
 
   // Auto-detect language when content changes
   useEffect(() => {
-    if (content.trim().length > 2) {
+    if (content.trim().length > 10) {
       // Use flourite's built-in tuning options for better detection
       const detected = flourite(content, {
         shiki: true, // Use Shiki language specifications

@@ -116,16 +116,20 @@ export default function PasteView({
 
   return (
     <div className='space-y-4'>
-      <div className='flex justify-between items-center'>
-        <div className='space-y-1'>
-          <div className='flex items-center gap-2'>
-            <p className='text-lg font-mono'>{currentUrl}</p>
+      <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4'>
+        <div className='space-y-1 w-full sm:w-auto'>
+          <div className='flex items-center gap-2 w-full'>
+            <div className='overflow-hidden w-full sm:w-auto'>
+              <p className='text-sm sm:text-lg font-mono truncate'>
+                {currentUrl}
+              </p>
+            </div>
             <Button
               type='button'
               size='icon'
               variant='ghost'
               onClick={handleCopyUrl}
-              className='h-8 w-8'
+              className='h-8 w-8 shrink-0'
             >
               {hasCopiedUrl ? (
                 <Check className='h-4 w-4' />
@@ -145,11 +149,20 @@ export default function PasteView({
             </p>
           )}
         </div>
-        <div className='flex gap-2'>
-          <Button variant='outline' onClick={handleReport}>
+        <div className='flex gap-2 w-full sm:w-auto'>
+          <Button
+            variant='outline'
+            onClick={handleReport}
+            className='flex-1 sm:flex-none'
+          >
             Report
           </Button>
-          <Button onClick={() => router.push('/')}>New Paste</Button>
+          <Button
+            onClick={() => router.push('/')}
+            className='flex-1 sm:flex-none'
+          >
+            New Paste
+          </Button>
         </div>
       </div>
 
@@ -162,17 +175,17 @@ export default function PasteView({
           variant='ghost'
           size='sm'
           onClick={handleCopy}
-          className='absolute top-2 right-6 h-8 text-xs gap-1.5 bg-white/90 hover:bg-white text-zinc-800 hover:text-zinc-800 transition-colors rounded-md border-none shadow-sm'
+          className='absolute top-2 right-2 sm:right-6 h-8 text-xs gap-1.5 bg-white/90 hover:bg-white text-zinc-800 hover:text-zinc-800 transition-colors rounded-md border-none shadow-sm'
         >
           {hasCopiedContent ? (
             <>
               <Check className='h-3.5 w-3.5' />
-              Copied
+              <span className='hidden sm:inline'>Copied</span>
             </>
           ) : (
             <>
               <Copy className='h-3.5 w-3.5' />
-              Copy code
+              <span className='hidden sm:inline'>Copy code</span>
             </>
           )}
         </Button>

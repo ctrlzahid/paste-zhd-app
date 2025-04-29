@@ -1,27 +1,26 @@
-import type { Metadata } from 'next';
 import { Space_Mono } from 'next/font/google';
 import './globals.css';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from 'sonner';
-import { scheduleCleanup } from '@/lib/cleanup';
+import { cn } from '@/lib/utils';
 import { Header } from '@/components/Header';
-import { Footer } from '@/components/Footer';
+import Footer from '@/components/Footer';
 
 const spaceMono = Space_Mono({
   subsets: ['latin'],
   weight: ['400', '700'],
 });
 
-// Initialize cleanup service
-if (process.env.NODE_ENV === 'production') {
-  scheduleCleanup();
-}
-
-export const metadata: Metadata = {
+export const metadata = {
   title: 'paste.zhd.app',
-  description: 'Share code in a snap',
+  description: 'A simple, fast, and secure pastebin service',
   icons: {
-    icon: '/favicon.ico',
+    icon: [
+      {
+        url: '/favicon.svg',
+        type: 'image/svg+xml',
+      },
+    ],
   },
 };
 
@@ -32,14 +31,27 @@ export default function RootLayout({
 }) {
   return (
     <html lang='en' suppressHydrationWarning>
-      <body className={spaceMono.className}>
+      <head>
+        <link rel='icon' type='image/svg+xml' href='/favicon.svg' />
+        <link rel='alternate icon' href='/favicon.ico' />
+        <link rel='apple-touch-icon' href='/apple-touch-icon.png' />
+        <link rel='manifest' href='/site.webmanifest' />
+        <meta name='theme-color' content='#18181B' />
+      </head>
+      <body
+        className={cn(
+          'min-h-screen bg-background antialiased',
+          spaceMono.className
+        )}
+      >
         <ThemeProvider
           attribute='class'
-          defaultTheme='system'
-          enableSystem
+          defaultTheme='dark'
+          enableSystem={false}
+          storageKey='paste-theme'
           disableTransitionOnChange
         >
-          <div className='min-h-screen flex flex-col'>
+          <div className='relative flex min-h-screen flex-col'>
             <Header />
             {children}
             <Footer />
