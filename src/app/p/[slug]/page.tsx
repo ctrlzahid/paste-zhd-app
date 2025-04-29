@@ -13,7 +13,7 @@ async function getPaste(slug: string) {
   const host = headersList.get('host');
   const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
 
-  const res = await fetch(`${protocol}://${host}/api/p/${slug}`, {
+  const res = await fetch(`${protocol}://${host}/api/p/${slug}?slug=${slug}`, {
     next: { revalidate: 60 },
   });
 

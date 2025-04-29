@@ -75,7 +75,7 @@ export default function PasteView({
 
   const handleReport = async () => {
     try {
-      const response = await fetch(`/api/p/${slug}`, {
+      const response = await fetch(`/api/p/${slug}?slug=${slug}`, {
         method: 'POST',
       });
 
