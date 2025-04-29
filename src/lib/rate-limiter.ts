@@ -22,7 +22,7 @@ export async function rateLimiter(
 
   try {
     // Try to find an existing record for this IP and date
-    let usageRecord = await UsageLimit.findOne({ ip, date: today });
+    const usageRecord = await UsageLimit.findOne({ ip, date: today });
 
     if (usageRecord) {
       // If record exists, increment the count

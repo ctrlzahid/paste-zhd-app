@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 export async function GET() {
   // Set the Authorization header in a cookie so the browser will send it with subsequent requests

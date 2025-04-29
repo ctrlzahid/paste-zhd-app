@@ -62,6 +62,7 @@ export default function PasteForm() {
       toast.success('URL copied to clipboard!');
       setTimeout(() => setHasCopied(false), 2000);
     } catch (error) {
+      console.error('Failed to copy URL:', error);
       toast.error('Failed to copy URL');
     }
   };

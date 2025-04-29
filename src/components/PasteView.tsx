@@ -68,6 +68,7 @@ export default function PasteView({
       toast.success('URL copied to clipboard!');
       setTimeout(() => setHasCopiedUrl(false), 2000);
     } catch (error) {
+      console.error('Failed to copy URL:', error);
       toast.error('Failed to copy URL');
     }
   };
@@ -84,6 +85,7 @@ export default function PasteView({
 
       toast.success('Paste reported successfully');
     } catch (error) {
+      console.error('Failed to report paste:', error);
       toast.error('Failed to report paste');
     }
   };
