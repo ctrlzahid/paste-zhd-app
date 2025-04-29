@@ -5,12 +5,12 @@ import { trackEvent } from '@/lib/analytics';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     await connectToDatabase();
 
-    const { slug } = params;
+    const { slug } = await params;
     const paste = await Paste.findOne({ slug });
 
     if (!paste) {
@@ -52,12 +52,12 @@ export async function GET(
 // Handle report or delete requests
 export async function POST(
   req: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
     await connectToDatabase();
 
-    const { slug } = params;
+    const { slug } = await params;
     const paste = await Paste.findOne({ slug });
 
     if (!paste) {
