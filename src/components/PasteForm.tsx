@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -16,7 +15,6 @@ import {
 } from '@/components/ui/select';
 
 export default function PasteForm() {
-  const router = useRouter();
   const [content, setContent] = useState('');
   const [syntax, setSyntax] = useState('text');
   const [expiresIn, setExpiresIn] = useState('1h');

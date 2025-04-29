@@ -1,4 +1,3 @@
-import { Toaster } from 'sonner';
 import PasteForm from '@/components/PasteForm';
 
 export const metadata = {

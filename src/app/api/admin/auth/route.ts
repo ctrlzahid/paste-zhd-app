@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   // Set the Authorization header in a cookie so the browser will send it with subsequent requests
   const authHeader = `Basic ${Buffer.from(
     `admin:${process.env.ADMIN_PASSWORD || 'adminpassword'}`

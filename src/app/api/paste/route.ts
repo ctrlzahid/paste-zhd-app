@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Calculate expiration date
-    let expiresAt = new Date();
+    const expiresAt = new Date();
     switch (expiresIn) {
       case '1h':
         expiresAt.setHours(expiresAt.getHours() + 1);
