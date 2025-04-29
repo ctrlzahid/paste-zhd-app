@@ -44,14 +44,11 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function POST(
-  req: NextRequest,
-  context: { params: Record<string, string> }
-) {
+export async function POST(req: NextRequest) {
   try {
     await connectToDatabase();
 
-    const slug = context.params.slug;
+    const slug = req.nextUrl.searchParams.get('slug');
     const paste = await Paste.findOne({ slug });
 
     if (!paste) {
