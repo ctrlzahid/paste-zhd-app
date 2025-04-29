@@ -3,20 +3,25 @@ import { connectToDatabase } from '@/lib/database';
 import { Paste } from '@/models/Paste';
 import { trackEvent } from '@/lib/analytics';
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { slug: string } }
-) {
+// Custom context type for route handler
+type Context = {
+  params: {
+    slug: string;
+  };
+};
+
+export async function GET(req: NextRequest, context: Context) {
   try {
     await connectToDatabase();
 
-    const { slug } = params;
+    const { slug } = context.params;
     const paste = await Paste.findOne({ slug });
 
     if (!paste) {
       return NextResponse.json({ error: 'Paste not found' }, { status: 404 });
     }
 
+    // If expired, delete and return error
     if (paste.expiresAt && new Date() > new Date(paste.expiresAt)) {
       await Paste.findByIdAndDelete(paste._id);
       return NextResponse.json(
@@ -46,14 +51,11 @@ export async function GET(
   }
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { slug: string } }
-) {
+export async function POST(req: NextRequest, context: Context) {
   try {
     await connectToDatabase();
 
-    const { slug } = params;
+    const { slug } = context.params;
     const paste = await Paste.findOne({ slug });
 
     if (!paste) {
