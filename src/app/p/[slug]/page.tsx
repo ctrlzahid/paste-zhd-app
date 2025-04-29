@@ -3,9 +3,9 @@ import PasteView from '@/components/PasteView';
 import { headers } from 'next/headers';
 
 interface PageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 async function getPaste(slug: string) {
@@ -29,7 +29,7 @@ async function getPaste(slug: string) {
 
 export default async function PastePage({ params }: PageProps) {
   // Remove the await from params
-  const { slug } = params;
+  const { slug } = await params;
   const paste = await getPaste(slug);
 
   return (
