@@ -3,25 +3,21 @@ import { connectToDatabase } from '@/lib/database';
 import { Paste } from '@/models/Paste';
 import { trackEvent } from '@/lib/analytics';
 
-// Custom context type for route handler
-type Context = {
-  params: {
-    slug: string;
-  };
-};
-
-export async function GET(req: NextRequest, context: Context) {
+// ✅ this is the only correct typing Next.js 15 accepts
+export async function GET(
+  req: NextRequest,
+  context: { params: Record<string, string> }
+) {
   try {
     await connectToDatabase();
 
-    const { slug } = context.params;
+    const slug = context.params.slug;
     const paste = await Paste.findOne({ slug });
 
     if (!paste) {
       return NextResponse.json({ error: 'Paste not found' }, { status: 404 });
     }
 
-    // If expired, delete and return error
     if (paste.expiresAt && new Date() > new Date(paste.expiresAt)) {
       await Paste.findByIdAndDelete(paste._id);
       return NextResponse.json(
@@ -51,11 +47,14 @@ export async function GET(req: NextRequest, context: Context) {
   }
 }
 
-export async function POST(req: NextRequest, context: Context) {
+export async function POST(
+  req: NextRequest,
+  context: { params: Record<string, string> }
+) {
   try {
     await connectToDatabase();
 
-    const { slug } = context.params;
+    const slug = context.params.slug;
     const paste = await Paste.findOne({ slug });
 
     if (!paste) {
