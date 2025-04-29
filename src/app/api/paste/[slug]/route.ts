@@ -2,14 +2,13 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectToDatabase from '@/lib/mongodb';
 import { Paste } from '@/models/Paste';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { slug: string } }
-) {
+export async function GET(request: NextRequest) {
   try {
     await connectToDatabase();
 
-    const paste = await Paste.findOne({ slug: params.slug });
+    const paste = await Paste.findOne({
+      slug: request.nextUrl.searchParams.get('slug'),
+    });
 
     if (!paste) {
       return NextResponse.json({ error: 'Paste not found' }, { status: 404 });
@@ -34,14 +33,13 @@ export async function GET(
   }
 }
 
-export async function POST(
-  request: NextRequest,
-  { params }: { params: { slug: string } }
-) {
+export async function POST(request: NextRequest) {
   try {
     await connectToDatabase();
 
-    const paste = await Paste.findOne({ slug: params.slug });
+    const paste = await Paste.findOne({
+      slug: request.nextUrl.searchParams.get('slug'),
+    });
 
     if (!paste) {
       return NextResponse.json({ error: 'Paste not found' }, { status: 404 });
