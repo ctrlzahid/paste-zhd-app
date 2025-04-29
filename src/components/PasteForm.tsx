@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Copy, Check } from 'lucide-react';
+import flourite from 'flourite';
 import {
   Select,
   SelectContent,
@@ -14,6 +15,30 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 
+// Map flourite languages to Shiki languages
+const LANGUAGE_MAP: Record<string, string> = {
+  'c++': 'cpp',
+  'c#': 'csharp',
+  javascript: 'javascript',
+  typescript: 'typescript',
+  python: 'python',
+  java: 'java',
+  ruby: 'ruby',
+  go: 'go',
+  rust: 'rust',
+  swift: 'swift',
+  kotlin: 'kotlin',
+  scala: 'scala',
+  haskell: 'haskell',
+  sql: 'sql',
+  html: 'html',
+  css: 'css',
+  json: 'json',
+  yaml: 'yaml',
+  markdown: 'markdown',
+  bash: 'bash',
+};
+
 export default function PasteForm() {
   const [content, setContent] = useState('');
   const [syntax, setSyntax] = useState('text');
@@ -21,6 +46,20 @@ export default function PasteForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pasteUrl, setPasteUrl] = useState('');
   const [hasCopied, setHasCopied] = useState(false);
+
+  // Auto-detect language when content changes
+  useEffect(() => {
+    if (content.trim().length > 2) {
+      // Use flourite's built-in tuning options for better detection
+      const detected = flourite(content, {
+        shiki: true, // Use Shiki language specifications
+        noUnknown: true, // Skip unknown results
+        heuristic: true, // Enable pattern detection at the start of content
+      }).language;
+      const mappedLanguage = LANGUAGE_MAP[detected] || 'text';
+      setSyntax(mappedLanguage);
+    }
+  }, [content]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

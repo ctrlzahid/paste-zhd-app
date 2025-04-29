@@ -35,12 +35,12 @@ export default function PasteView({
   }, []);
 
   useEffect(() => {
-    if (!content || !syntax) return;
+    if (!content) return;
 
     const highlightContent = async () => {
       try {
         const html = await codeToHtml(content, {
-          lang: syntax,
+          lang: syntax || 'text', // fallback to text if no syntax provided
           theme: 'github-dark',
         });
         setHighlightedContent(html);
