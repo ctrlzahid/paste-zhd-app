@@ -9,28 +9,47 @@ interface PageProps {
 }
 
 async function getPaste(slug: string) {
-  const headersList = await headers();
-  const host = headersList.get('host');
-  const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
+  try {
+    const headersList = await headers();
+    const host = headersList.get('host');
+    const protocol = process.env.NODE_ENV === 'development' ? 'http' : 'https';
 
-  const res = await fetch(`${protocol}://${host}/api/p/${slug}?slug=${slug}`, {
-    next: { revalidate: 60 },
-  });
+    const res = await fetch(
+      `${protocol}://${host}/api/p/${slug}?slug=${slug}`,
+      {
+        next: { revalidate: 60 },
+      }
+    );
 
-  if (!res.ok) {
-    if (res.status === 404) {
-      notFound();
+    if (!res.ok) {
+      if (res.status === 404) {
+        return null;
+      }
+      throw new Error('Failed to fetch paste');
     }
+
+    return res.json();
+  } catch (error) {
+    console.error('Error fetching paste:', error);
     throw new Error('Failed to fetch paste');
   }
-
-  return res.json();
 }
 
 export default async function PastePage({ params }: PageProps) {
-  // Remove the await from params
   const { slug } = await params;
   const paste = await getPaste(slug);
+
+  if (!paste) {
+    return (
+      <main className='flex-1 bg-gradient-to-b from-background to-background/95'>
+        <div className='container mx-auto px-4 py-12 max-w-4xl'>
+          <div className='backdrop-blur-sm bg-card/50 border rounded-xl p-6 shadow-lg'>
+            <PasteView notFound={true} />
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className='flex-1 bg-gradient-to-b from-background to-background/95'>

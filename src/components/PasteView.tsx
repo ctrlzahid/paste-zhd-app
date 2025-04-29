@@ -5,14 +5,15 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { codeToHtml } from 'shiki';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, FileX } from 'lucide-react';
 
 interface PasteViewProps {
-  content: string;
-  syntax: string;
-  createdAt: string;
-  expiresAt: string;
-  slug: string;
+  content?: string;
+  syntax?: string;
+  createdAt?: string;
+  expiresAt?: string;
+  slug?: string;
+  notFound?: boolean;
 }
 
 export default function PasteView({
@@ -21,6 +22,7 @@ export default function PasteView({
   createdAt,
   expiresAt,
   slug,
+  notFound = false,
 }: PasteViewProps) {
   const router = useRouter();
   const [highlightedContent, setHighlightedContent] = useState('');
@@ -33,6 +35,8 @@ export default function PasteView({
   }, []);
 
   useEffect(() => {
+    if (!content || !syntax) return;
+
     const highlightContent = async () => {
       try {
         const html = await codeToHtml(content, {
@@ -50,6 +54,7 @@ export default function PasteView({
   }, [content, syntax]);
 
   const handleCopy = async () => {
+    if (!content) return;
     try {
       await navigator.clipboard.writeText(content);
       setHasCopiedContent(true);
@@ -74,6 +79,7 @@ export default function PasteView({
   };
 
   const handleReport = async () => {
+    if (!slug) return;
     try {
       const response = await fetch(`/api/p/${slug}?slug=${slug}`, {
         method: 'POST',
@@ -89,6 +95,24 @@ export default function PasteView({
       toast.error('Failed to report paste');
     }
   };
+
+  if (notFound) {
+    return (
+      <div className='flex flex-col items-center justify-center min-h-[400px] text-center space-y-4'>
+        <div className='rounded-full bg-muted/20 p-6'>
+          <FileX className='h-12 w-12 text-muted-foreground' />
+        </div>
+        <h2 className='text-2xl font-semibold'>Paste Not Found</h2>
+        <p className='text-muted-foreground max-w-md'>
+          This paste may have expired or been removed. Please check the URL and
+          try again.
+        </p>
+        <Button onClick={() => router.push('/')} className='mt-4'>
+          Create New Paste
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className='space-y-4'>
@@ -110,12 +134,16 @@ export default function PasteView({
               )}
             </Button>
           </div>
-          <p className='text-sm text-muted-foreground'>
-            Created: {new Date(createdAt).toLocaleString()}
-          </p>
-          <p className='text-sm text-muted-foreground'>
-            Expires: {new Date(expiresAt).toLocaleString()}
-          </p>
+          {createdAt && (
+            <p className='text-sm text-muted-foreground'>
+              Created: {new Date(createdAt).toLocaleString()}
+            </p>
+          )}
+          {expiresAt && (
+            <p className='text-sm text-muted-foreground'>
+              Expires: {new Date(expiresAt).toLocaleString()}
+            </p>
+          )}
         </div>
         <div className='flex gap-2'>
           <Button variant='outline' onClick={handleReport}>
