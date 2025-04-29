@@ -16,9 +16,10 @@ export default function PrivacyPage() {
           </p>
 
           <p>
-            At paste.zhd.app ("we", "our", "us"), we are committed to protecting
-            your privacy and maintaining transparency about how we collect, use,
-            and protect your information.
+            At paste.zhd.app (&ldquo;we&rdquo;, &ldquo;our&rdquo;,
+            &ldquo;us&rdquo;), we are committed to protecting your privacy and
+            maintaining transparency about how we collect, use, and protect your
+            information.
           </p>
 
           <h2>1. Information We Collect</h2>

@@ -30,8 +30,8 @@ export default function TermsPage() {
           <h2>2. Temporary Storage</h2>
           <p>
             All pastes are temporary and auto-deleted after their expiry. This
-            service is provided "as-is" with no guarantee of permanent storage
-            or availability.
+            service is provided &ldquo;as-is&rdquo; with no guarantee of
+            permanent storage or availability.
           </p>
 
           <h2>3. Intellectual Property</h2>
