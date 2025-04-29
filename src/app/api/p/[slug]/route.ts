@@ -4,14 +4,11 @@ import { Paste } from '@/models/Paste';
 import { trackEvent } from '@/lib/analytics';
 
 // ✅ this is the only correct typing Next.js 15 accepts
-export async function GET(
-  req: NextRequest,
-  context: { params: Record<string, string> }
-) {
+export async function GET(req: NextRequest) {
   try {
     await connectToDatabase();
 
-    const slug = context.params.slug;
+    const slug = req.nextUrl.searchParams.get('slug');
     const paste = await Paste.findOne({ slug });
 
     if (!paste) {
