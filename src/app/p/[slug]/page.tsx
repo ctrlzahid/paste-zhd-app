@@ -28,8 +28,8 @@ async function getPaste(slug: string) {
 }
 
 export default async function PastePage({ params }: PageProps) {
-  // Await the params to access its properties safely
-  const { slug } = await params;
+  // Remove the await from params
+  const { slug } = params;
   const paste = await getPaste(slug);
 
   return (
