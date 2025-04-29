@@ -1,4 +1,3 @@
-import { notFound } from 'next/navigation';
 import PasteView from '@/components/PasteView';
 import { headers } from 'next/headers';
 

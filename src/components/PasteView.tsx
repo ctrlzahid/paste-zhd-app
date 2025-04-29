@@ -162,7 +162,7 @@ export default function PasteView({
           variant='ghost'
           size='sm'
           onClick={handleCopy}
-          className='absolute top-2 right-6 h-8 text-xs gap-1.5 bg-[#24292e] hover:bg-[#2b3137] text-zinc-400 hover:text-zinc-200 transition-colors rounded-md border border-zinc-700/30'
+          className='absolute top-2 right-6 h-8 text-xs gap-1.5 bg-white/90 hover:bg-white text-zinc-800 hover:text-zinc-800 transition-colors rounded-md border-none shadow-sm'
         >
           {hasCopiedContent ? (
             <>
