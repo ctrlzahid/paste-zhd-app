@@ -39,6 +39,8 @@ const LANGUAGE_MAP: Record<string, string> = {
   bash: 'bash',
 };
 
+const MAX_CHARS = 100_000; // 1 lakh characters
+
 export default function PasteForm() {
   const [content, setContent] = useState('');
   const [syntax, setSyntax] = useState('text');
@@ -46,6 +48,10 @@ export default function PasteForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pasteUrl, setPasteUrl] = useState('');
   const [hasCopied, setHasCopied] = useState(false);
+
+  // Add character count state
+  const charCount = content.length;
+  const isOverLimit = charCount > MAX_CHARS;
 
   // Auto-detect language when content changes
   useEffect(() => {
@@ -63,6 +69,15 @@ export default function PasteForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Add frontend validation
+    if (isOverLimit) {
+      toast.error(
+        `Content exceeds maximum length of ${MAX_CHARS.toLocaleString()} characters`
+      );
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -138,17 +153,35 @@ export default function PasteForm() {
       )}
 
       <div className='space-y-2'>
-        <Label htmlFor='content' className='text-sm font-medium'>
-          Code
-        </Label>
+        <div className='flex justify-between items-center'>
+          <Label htmlFor='content' className='text-sm font-medium'>
+            Code
+          </Label>
+          <span
+            className={`text-sm ${
+              isOverLimit ? 'text-red-500' : 'text-muted-foreground'
+            }`}
+          >
+            {charCount.toLocaleString()} / {MAX_CHARS.toLocaleString()}{' '}
+            characters
+          </span>
+        </div>
         <Textarea
           id='content'
           value={content}
           onChange={(e) => setContent(e.target.value)}
           placeholder='Paste your code here...'
-          className='h-[400px] max-h-[400px] font-mono bg-background/50 backdrop-blur-sm resize-none border-muted focus-visible:ring-primary/20 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/30'
+          className={`h-[400px] max-h-[400px] font-mono bg-background/50 backdrop-blur-sm resize-none border-muted focus-visible:ring-primary/20 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-muted-foreground/20 [&::-webkit-scrollbar-thumb]:rounded-full hover:[&::-webkit-scrollbar-thumb]:bg-muted-foreground/30 ${
+            isOverLimit ? 'border-red-500' : ''
+          }`}
           required
         />
+        {isOverLimit && (
+          <p className='text-sm text-red-500'>
+            Content exceeds maximum length of {MAX_CHARS.toLocaleString()}{' '}
+            characters
+          </p>
+        )}
       </div>
 
       <div className='grid grid-cols-2 gap-6'>

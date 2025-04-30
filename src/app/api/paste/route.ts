@@ -24,6 +24,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Update character limit to 100,000 (1 lakh)
+    const MAX_CHARS = 100_000;
+    if (content.length > MAX_CHARS) {
+      return NextResponse.json(
+        {
+          error: `Content exceeds maximum length of ${MAX_CHARS.toLocaleString()} characters`,
+        },
+        { status: 400 }
+      );
+    }
+
     // Calculate expiration date
     const expiresAt = new Date();
     switch (expiresIn) {
