@@ -87,7 +87,7 @@ export default function PrivacyPage() {
           <h2>8. Contact</h2>
           <p>
             For any privacy concerns, reach out to:{' '}
-            <a href='mailto:support@zhd.app'>support@zhd.app</a>
+            <a href='mailto:ctrlzahid@gmail.com'>ctrlzahid@gmail.com</a>
           </p>
         </article>
       </div>

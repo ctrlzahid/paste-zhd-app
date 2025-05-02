@@ -1,9 +1,12 @@
 import { Metadata } from 'next';
-import { headers } from 'next/headers';
+import { headers, cookies } from 'next/headers';
 import { connectToDatabase } from '@/lib/database';
 import { AnalyticsEvent, UsageLimit } from '@/models/Analytics';
 import Link from 'next/link';
 import AnalyticsDashboard from '@/components/AnalyticsDashboard';
+import { Feedback } from '@/models/Feedback';
+import { redirect } from 'next/navigation';
+import LogoutButton from '@/components/LogoutButton';
 
 export const metadata: Metadata = {
   title: 'Admin - Analytics Dashboard',
@@ -91,6 +94,11 @@ async function getAnalyticsData() {
       { $sort: { '_id.date': 1 } },
     ]);
 
+    // Get recent feedback
+    const recentFeedback = await Feedback.find()
+      .sort({ createdAt: -1 })
+      .limit(50);
+
     return {
       eventCounts: {
         create: createEvents,
@@ -115,6 +123,14 @@ async function getAnalyticsData() {
         event: item._id.event,
         count: item.count,
       })),
+      feedback: recentFeedback.map((item) => ({
+        id: item._id.toString(),
+        message: item.message,
+        email: item.email || 'Anonymous',
+        createdAt: item.createdAt,
+        ip: item.ip,
+        userAgent: item.userAgent,
+      })),
     };
   } catch (error) {
     console.error('Error fetching analytics data:', error);
@@ -123,34 +139,6 @@ async function getAnalyticsData() {
 }
 
 export default async function AdminAnalyticsPage() {
-  // Basic auth check using environment variable
-  const headersList = headers();
-  const authorization = (await headersList).get('authorization') || '';
-
-  // The expected format is: "Basic base64(username:password)"
-  const expectedAuth = `Basic ${Buffer.from(
-    `admin:${process.env.ADMIN_PASSWORD || 'adminpassword'}`
-  ).toString('base64')}`;
-
-  if (authorization !== expectedAuth) {
-    return (
-      <div className='min-h-screen flex items-center justify-center'>
-        <div className='text-center space-y-4'>
-          <h1 className='text-2xl font-bold'>Unauthorized</h1>
-          <p>You need to be authorized to view this page.</p>
-          <div className='pt-4'>
-            <Link
-              href='/admin/login'
-              className='py-2 px-4 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md text-center'
-            >
-              Go to Login
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   try {
     const analyticsData = await getAnalyticsData();
 
@@ -184,7 +172,10 @@ export default async function AdminAnalyticsPage() {
       <main className='flex-1 bg-gradient-to-b from-background to-background/95'>
         <div className='container mx-auto px-4 py-12 max-w-6xl'>
           <div className='backdrop-blur-sm bg-card/50 border rounded-xl p-6 shadow-lg'>
-            <h1 className='text-3xl font-bold mb-8'>Analytics Dashboard</h1>
+            <div className='flex justify-between items-center mb-8'>
+              <h1 className='text-3xl font-bold'>Analytics Dashboard</h1>
+              <LogoutButton />
+            </div>
             <AnalyticsDashboard data={analyticsData} />
           </div>
         </div>

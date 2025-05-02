@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import LoginButton from '@/components/LoginButton';
+import LoginForm from '@/components/LoginButton';
 
 export const metadata: Metadata = {
   title: 'Admin Login - paste.zhd.app',
@@ -17,16 +17,7 @@ export default function AdminLoginPage() {
               Login to access the analytics dashboard
             </p>
           </div>
-          <div className='flex flex-col gap-4'>
-            <p className='text-center text-muted-foreground'>
-              Click the button below to log in with the default credentials.
-            </p>
-            <LoginButton />
-            <p className='text-xs text-center text-muted-foreground mt-4'>
-              For production use, set the ADMIN_PASSWORD environment variable in
-              your .env.local file.
-            </p>
-          </div>
+          <LoginForm />
         </div>
       </div>
     </main>

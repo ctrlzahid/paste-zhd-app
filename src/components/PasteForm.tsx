@@ -100,7 +100,7 @@ export default function PasteForm() {
       const data = await response.json();
       const url = `${window.location.origin}/p/${data.slug}`;
       setPasteUrl(url);
-      toast.success('Paste created successfully!');
+      toast.success('Your link is ready to share! 🚀');
     } catch (error) {
       console.error('Error creating paste:', error);
       toast.error('Failed to create paste');

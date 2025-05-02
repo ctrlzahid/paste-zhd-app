@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import FeedbackDialog from './FeedbackDialog';
 
 export default function Footer() {
   return (
@@ -8,6 +9,7 @@ export default function Footer() {
           © {new Date().getFullYear()} paste.zhd.app
         </p>
         <nav className='flex items-center gap-4'>
+          <FeedbackDialog />
           <Link
             href='/privacy'
             className='text-sm text-muted-foreground hover:text-foreground transition-colors'

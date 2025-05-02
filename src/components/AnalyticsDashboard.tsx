@@ -43,6 +43,14 @@ type AnalyticsDataProps = {
       event: string;
       count: number;
     }>;
+    feedback: Array<{
+      id: string;
+      message: string;
+      email: string;
+      createdAt: Date;
+      ip: string;
+      userAgent?: string;
+    }>;
   };
 };
 
@@ -146,6 +154,12 @@ export default function AnalyticsDashboard({ data }: AnalyticsDataProps) {
           value='ratelimits'
         >
           Rate Limits
+        </Tabs.Trigger>
+        <Tabs.Trigger
+          className='px-4 py-2 text-sm font-medium hover:bg-muted/50 data-[state=active]:border-b-2 data-[state=active]:border-primary'
+          value='feedback'
+        >
+          Feedback
         </Tabs.Trigger>
       </Tabs.List>
 
@@ -326,6 +340,38 @@ export default function AnalyticsDashboard({ data }: AnalyticsDataProps) {
             <p className='text-muted-foreground'>
               No IPs approaching rate limits
             </p>
+          )}
+        </div>
+      </Tabs.Content>
+
+      <Tabs.Content value='feedback' className='space-y-4'>
+        <div className='bg-card p-4 rounded-lg shadow'>
+          <h3 className='text-lg font-semibold mb-4'>Recent Feedback</h3>
+          {data.feedback.length > 0 ? (
+            <div className='space-y-4'>
+              {data.feedback.map((item) => (
+                <div
+                  key={item.id}
+                  className='p-4 border rounded-lg bg-background/50'
+                >
+                  <div className='flex justify-between items-start mb-2'>
+                    <div className='space-y-1'>
+                      <p className='font-medium'>{item.email}</p>
+                      <p className='text-sm text-muted-foreground'>
+                        {new Date(item.createdAt).toLocaleString()}
+                      </p>
+                    </div>
+                    <div className='text-right text-sm text-muted-foreground'>
+                      <p>{item.ip}</p>
+                      <p className='truncate max-w-[200px]'>{item.userAgent}</p>
+                    </div>
+                  </div>
+                  <p className='text-sm whitespace-pre-wrap'>{item.message}</p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className='text-muted-foreground'>No feedback received yet</p>
           )}
         </div>
       </Tabs.Content>

@@ -63,7 +63,7 @@ export default function TermsPage() {
           <h2>7. Contact</h2>
           <p>
             For legal questions, email:{' '}
-            <a href='mailto:legal@zhd.app'>legal@zhd.app</a>
+            <a href='mailto:ctrlzahid@gmail.com'>ctrlzahid@gmail.com</a>
           </p>
         </article>
       </div>
