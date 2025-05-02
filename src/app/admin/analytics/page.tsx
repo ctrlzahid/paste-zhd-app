@@ -1,11 +1,8 @@
 import { Metadata } from 'next';
-import { headers, cookies } from 'next/headers';
 import { connectToDatabase } from '@/lib/database';
 import { AnalyticsEvent, UsageLimit } from '@/models/Analytics';
-import Link from 'next/link';
 import AnalyticsDashboard from '@/components/AnalyticsDashboard';
 import { Feedback } from '@/models/Feedback';
-import { redirect } from 'next/navigation';
 import LogoutButton from '@/components/LogoutButton';
 
 export const metadata: Metadata = {
