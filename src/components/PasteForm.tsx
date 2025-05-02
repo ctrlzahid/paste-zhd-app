@@ -183,6 +183,16 @@ export default function PasteForm() {
                 value={pasteUrl}
                 readOnly
                 className='flex-1 px-3 py-2 text-sm rounded-md border bg-background/50 font-mono shadow-sm'
+                onClick={async (e) => {
+                  e.currentTarget.select();
+                  try {
+                    await navigator.clipboard.writeText(pasteUrl);
+                    toast.success('Link copied to clipboard!');
+                  } catch {
+                    toast.error('Failed to copy link');
+                  }
+                }}
+                onFocus={(e) => e.currentTarget.select()}
               />
               <TooltipProvider>
                 <Tooltip>
