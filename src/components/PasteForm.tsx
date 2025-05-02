@@ -29,6 +29,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import { Switch } from '@/components/ui/switch';
+import { Input as UiInput } from '@/components/ui/input';
 
 // Map flourite languages to Shiki languages
 const LANGUAGE_MAP: Record<string, string> = {
@@ -64,6 +66,9 @@ export default function PasteForm() {
   const [pasteUrl, setPasteUrl] = useState('');
   const [hasCopied, setHasCopied] = useState(false);
   const urlInputRef = useRef<HTMLInputElement>(null);
+  const [passwordProtect, setPasswordProtect] = useState(false);
+  const [password, setPassword] = useState('');
+  const [burnAfterRead, setBurnAfterRead] = useState(false);
 
   // Add character count state
   const charCount = content.length;
@@ -114,6 +119,8 @@ export default function PasteForm() {
           content,
           syntax,
           expiresIn,
+          password: passwordProtect ? password : undefined,
+          burnAfterRead,
         }),
       });
 
@@ -333,6 +340,41 @@ export default function PasteForm() {
               <SelectItem value='1m'>1 Month</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+      </div>
+
+      <div className='flex flex-col sm:flex-row gap-4'>
+        <div className='flex items-center gap-2'>
+          <Switch
+            id='password-protect'
+            checked={passwordProtect}
+            onCheckedChange={setPasswordProtect}
+          />
+          <Label htmlFor='password-protect' className='text-sm font-medium'>
+            Password protect
+          </Label>
+          {passwordProtect && (
+            <UiInput
+              type='password'
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder='Password'
+              className='ml-2 w-40'
+              minLength={3}
+              maxLength={64}
+              required
+            />
+          )}
+        </div>
+        <div className='flex items-center gap-2'>
+          <Switch
+            id='burn-after-read'
+            checked={burnAfterRead}
+            onCheckedChange={setBurnAfterRead}
+          />
+          <Label htmlFor='burn-after-read' className='text-sm font-medium'>
+            Burn after read
+          </Label>
         </div>
       </div>
 

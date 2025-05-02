@@ -16,9 +16,17 @@ async function getPaste(slug: string) {
     const res = await fetch(
       `${protocol}://${host}/api/p/${slug}?slug=${slug}`,
       {
-        next: { revalidate: 60 },
+        next: { revalidate: 0 },
       }
     );
+
+    if (res.status === 401) {
+      const data = await res.json();
+      if (data.passwordRequired) {
+        return { passwordRequired: true };
+      }
+      throw new Error(data.error || 'Unauthorized');
+    }
 
     if (!res.ok) {
       if (res.status === 404) {
@@ -50,6 +58,18 @@ export default async function PastePage({ params }: PageProps) {
     );
   }
 
+  if (paste.passwordRequired) {
+    return (
+      <main className='flex-1 bg-gradient-to-b from-background to-background/95'>
+        <div className='container mx-auto px-4 py-12 max-w-4xl'>
+          <div className='backdrop-blur-sm bg-card/50 border rounded-xl p-6 shadow-lg'>
+            <PasteView slug={slug} />
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className='flex-1 bg-gradient-to-b from-background to-background/95'>
       <div className='container mx-auto px-4 py-12 max-w-4xl'>
@@ -60,6 +80,7 @@ export default async function PastePage({ params }: PageProps) {
             createdAt={paste.createdAt}
             expiresAt={paste.expiresAt}
             slug={slug}
+            burnAfterRead={paste.burnAfterRead}
           />
         </div>
       </div>

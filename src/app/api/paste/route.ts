@@ -4,6 +4,7 @@ import { Paste } from '@/models/Paste';
 import { nanoid } from 'nanoid';
 import { rateLimiter } from '@/lib/rate-limiter';
 import { trackEvent } from '@/lib/analytics';
+import bcrypt from 'bcryptjs';
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,7 +16,13 @@ export async function POST(req: NextRequest) {
 
     await connectToDatabase();
 
-    const { content, syntax = 'text', expiresIn = '1d' } = await req.json();
+    const {
+      content,
+      syntax = 'text',
+      expiresIn = '1d',
+      password,
+      burnAfterRead = false,
+    } = await req.json();
 
     if (!content) {
       return NextResponse.json(
@@ -57,12 +64,20 @@ export async function POST(req: NextRequest) {
     // Generate a random slug
     const slug = nanoid(12);
 
+    // Hash password if provided
+    let hashedPassword = undefined;
+    if (password && typeof password === 'string' && password.length > 0) {
+      hashedPassword = await bcrypt.hash(password, 10);
+    }
+
     // Create the paste
     const paste = await Paste.create({
       content,
       syntax,
       expiresAt,
       slug,
+      password: hashedPassword,
+      burnAfterRead,
     });
 
     // Track the creation event

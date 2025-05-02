@@ -42,6 +42,14 @@ const pasteSchema = new Schema(
       type: Boolean,
       default: false,
     },
+    password: {
+      type: String,
+      required: false,
+    },
+    burnAfterRead: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

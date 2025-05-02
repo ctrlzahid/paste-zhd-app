@@ -13,6 +13,7 @@ import {
   FileText,
   QrCode,
   File,
+  AlertTriangle,
 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import {
@@ -93,6 +94,7 @@ interface PasteViewProps {
   expiresAt?: string;
   slug?: string;
   notFound?: boolean;
+  burnAfterRead?: boolean;
 }
 
 // Add this function with other utility functions/constants
@@ -105,12 +107,13 @@ const formatFileSize = (bytes: number): string => {
 };
 
 export default function PasteView({
-  content,
-  syntax,
-  createdAt,
-  expiresAt,
+  content: initialContent,
+  syntax: initialSyntax,
+  createdAt: initialCreatedAt,
+  expiresAt: initialExpiresAt,
   slug,
   notFound = false,
+  burnAfterRead: initialBurnAfterRead,
 }: PasteViewProps) {
   const router = useRouter();
   const [highlightedContent, setHighlightedContent] = useState('');
@@ -120,6 +123,21 @@ export default function PasteView({
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [selectedExtension, setSelectedExtension] = useState<string>('');
   const [fileName, setFileName] = useState(`paste-${slug}`);
+  const [content, setContent] = useState<string | undefined>(initialContent);
+  const [syntax, setSyntax] = useState<string | undefined>(initialSyntax);
+  const [createdAt, setCreatedAt] = useState<string | undefined>(
+    initialCreatedAt
+  );
+  const [expiresAt, setExpiresAt] = useState<string | undefined>(
+    initialExpiresAt
+  );
+  const [burnAfterRead, setBurnAfterRead] = useState(
+    initialBurnAfterRead || false
+  );
+  const [passwordPrompt, setPasswordPrompt] = useState('');
+  const [showPasswordInput, setShowPasswordInput] = useState(false);
+  const [passwordError, setPasswordError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setCurrentUrl(window.location.href);
@@ -132,6 +150,71 @@ export default function PasteView({
     // Set default filename when slug changes
     setFileName(`paste-${slug}`);
   }, [syntax, slug]);
+
+  useEffect(() => {
+    // If content is provided as prop, skip fetch
+    if (initialContent) {
+      setContent(initialContent);
+      setSyntax(initialSyntax);
+      setCreatedAt(initialCreatedAt);
+      setExpiresAt(initialExpiresAt);
+      return;
+    }
+    if (!slug) return;
+    setLoading(true);
+    fetch(`/api/p/${slug}?slug=${slug}`)
+      .then(async (res) => {
+        const data = await res.json();
+        if (res.status === 401 && data.passwordRequired) {
+          setShowPasswordInput(true);
+          setBurnAfterRead(data.burnAfterRead || false);
+          setLoading(false);
+          return;
+        }
+        if (res.status !== 200) {
+          setContent(undefined);
+          setSyntax(undefined);
+          setCreatedAt(undefined);
+          setExpiresAt(undefined);
+          setShowPasswordInput(false);
+          setBurnAfterRead(false);
+          setLoading(false);
+          return;
+        }
+        setContent(data.content);
+        setSyntax(data.syntax);
+        setCreatedAt(data.createdAt);
+        setExpiresAt(data.expiresAt);
+        setBurnAfterRead(data.burnAfterRead || false);
+        setShowPasswordInput(false);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [slug, initialContent, initialSyntax, initialCreatedAt, initialExpiresAt]);
+
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError('');
+    setLoading(true);
+    const res = await fetch(`/api/p/${slug}?slug=${slug}`, {
+      headers: {
+        'x-paste-password': passwordPrompt,
+      },
+    });
+    const data = await res.json();
+    if (res.status === 401) {
+      setPasswordError(data.error || 'Incorrect password');
+      setLoading(false);
+      return;
+    }
+    setContent(data.content);
+    setSyntax(data.syntax);
+    setCreatedAt(data.createdAt);
+    setExpiresAt(data.expiresAt);
+    setBurnAfterRead(data.burnAfterRead || false);
+    setShowPasswordInput(false);
+    setLoading(false);
+  };
 
   useEffect(() => {
     if (!content) return;
@@ -264,8 +347,48 @@ export default function PasteView({
     );
   }
 
+  if (showPasswordInput) {
+    return (
+      <div className='flex flex-col items-center justify-center min-h-[400px] text-center space-y-4'>
+        <div className='rounded-full bg-muted/20 p-6'>
+          <AlertTriangle className='h-12 w-12 text-yellow-500' />
+        </div>
+        <h2 className='text-2xl font-semibold'>Password Protected</h2>
+        <form
+          onSubmit={handlePasswordSubmit}
+          className='space-y-4 w-full max-w-xs'
+        >
+          <input
+            type='password'
+            value={passwordPrompt}
+            onChange={(e) => setPasswordPrompt(e.target.value)}
+            className='w-full px-3 py-2 border rounded-md text-center font-mono'
+            placeholder='Enter password'
+            disabled={loading}
+            autoFocus
+          />
+          {passwordError && (
+            <p className='text-red-500 text-sm'>{passwordError}</p>
+          )}
+          <Button type='submit' className='w-full' disabled={loading}>
+            {loading ? 'Checking...' : 'Unlock'}
+          </Button>
+        </form>
+      </div>
+    );
+  }
+
   return (
     <div className='space-y-4'>
+      {burnAfterRead && (
+        <div className='flex items-center gap-2 bg-yellow-100 border border-yellow-300 text-yellow-800 px-4 py-2 rounded-md'>
+          <AlertTriangle className='h-5 w-5' />
+          <span>
+            This is a burn-after-read paste. It will be destroyed after you view
+            it.
+          </span>
+        </div>
+      )}
       <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4'>
         <div className='space-y-1 w-full sm:w-auto'>
           <div className='flex items-center gap-2 w-full'>
