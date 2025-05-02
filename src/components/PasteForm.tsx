@@ -126,7 +126,7 @@ export default function PasteForm() {
       {pasteUrl && (
         <div className='p-4 rounded-lg bg-muted/50 border backdrop-blur-sm animate-in fade-in-0 slide-in-from-top-4'>
           <p className='text-sm font-medium mb-2 text-muted-foreground'>
-            Paste URL
+            Share this link
           </p>
           <div className='flex items-center gap-2'>
             <input
@@ -252,10 +252,10 @@ export default function PasteForm() {
         {isSubmitting ? (
           <span className='flex items-center gap-2'>
             <div className='size-4 border-2 border-white/30 border-t-white rounded-full animate-spin' />
-            Creating...
+            Generating...
           </span>
         ) : (
-          'Create Paste'
+          'Get Share Link'
         )}
       </Button>
     </form>
