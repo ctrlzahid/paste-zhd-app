@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, QrCode, Download } from 'lucide-react';
 import flourite from 'flourite';
 import {
   Select,
@@ -14,6 +14,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Kbd } from '@/components/ui/kbd';
+import { QRCodeSVG } from 'qrcode.react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 // Map flourite languages to Shiki languages
 const LANGUAGE_MAP: Record<string, string> = {
@@ -48,6 +63,7 @@ export default function PasteForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [pasteUrl, setPasteUrl] = useState('');
   const [hasCopied, setHasCopied] = useState(false);
+  const urlInputRef = useRef<HTMLInputElement>(null);
 
   // Add character count state
   const charCount = content.length;
@@ -66,6 +82,14 @@ export default function PasteForm() {
       setSyntax(mappedLanguage);
     }
   }, [content]);
+
+  // Add effect to focus and select URL when it's generated
+  useEffect(() => {
+    if (pasteUrl && urlInputRef.current) {
+      urlInputRef.current.focus();
+      urlInputRef.current.select();
+    }
+  }, [pasteUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,6 +145,22 @@ export default function PasteForm() {
     }
   };
 
+  const handleSaveQR = () => {
+    const svg = document.querySelector('.qr-code svg');
+    if (!svg) return;
+
+    const svgData = new XMLSerializer().serializeToString(svg);
+    const blob = new Blob([svgData], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `paste-qr.svg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <form onSubmit={handleSubmit} className='space-y-6'>
       {pasteUrl && (
@@ -128,26 +168,78 @@ export default function PasteForm() {
           <p className='text-sm font-medium mb-2 text-muted-foreground'>
             Share this link
           </p>
-          <div className='flex items-center gap-2'>
-            <input
-              type='text'
-              value={pasteUrl}
-              readOnly
-              className='flex-1 px-3 py-2 text-sm rounded-md border bg-background/50 font-mono shadow-sm'
-            />
-            <Button
-              type='button'
-              size='icon'
-              variant='outline'
-              onClick={handleCopyUrl}
-              className='shrink-0 hover:bg-background/80'
-            >
-              {hasCopied ? (
-                <Check className='h-4 w-4 text-green-500' />
-              ) : (
-                <Copy className='h-4 w-4' />
-              )}
-            </Button>
+          <div className='flex flex-col gap-2'>
+            <div className='flex items-center gap-2'>
+              <input
+                ref={urlInputRef}
+                type='text'
+                value={pasteUrl}
+                readOnly
+                className='flex-1 px-3 py-2 text-sm rounded-md border bg-background/50 font-mono shadow-sm'
+              />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
+                          type='button'
+                          size='icon'
+                          variant='outline'
+                          className='shrink-0 hover:bg-background/80'
+                        >
+                          <QrCode className='h-4 w-4' />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent>
+                        <DialogHeader>
+                          <DialogTitle>QR Code for Paste</DialogTitle>
+                        </DialogHeader>
+                        <div className='flex flex-col items-center gap-4'>
+                          <div className='qr-code bg-white p-4 rounded-lg'>
+                            <QRCodeSVG value={pasteUrl} size={256} />
+                          </div>
+                          <Button variant='outline' onClick={handleSaveQR}>
+                            <Download className='h-4 w-4 mr-2' />
+                            Save QR Code
+                          </Button>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Show QR code</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      type='button'
+                      size='icon'
+                      variant='outline'
+                      onClick={handleCopyUrl}
+                      className='shrink-0 hover:bg-background/80'
+                    >
+                      {hasCopied ? (
+                        <Check className='h-4 w-4 text-green-500' />
+                      ) : (
+                        <Copy className='h-4 w-4' />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Copy link</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <p className='text-xs text-muted-foreground'>
+              Press{' '}
+              <Kbd>{navigator.platform.includes('Mac') ? '⌘' : 'Ctrl'}</Kbd> +{' '}
+              <Kbd>C</Kbd> to copy
+            </p>
           </div>
         </div>
       )}
